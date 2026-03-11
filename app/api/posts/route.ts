@@ -1,4 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
+const postInputSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, "Title is required")
+    .max(200, "Title is too long"),
+  content: z
+    .string()
+    .trim()
+    .min(1, "Content is required")
+    .max(50000, "Content is too long"),
+  slug: z
+    .string()
+    .trim()
+    .min(1, "Slug is required")
+    .max(200, "Slug is too long")
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be kebab-case"),
+  date: z.preprocess((value) => {
+    if (value === undefined || value === null || value === "") return undefined;
+    const parsed = new Date(String(value));
+    return Number.isNaN(parsed.getTime()) ? value : parsed;
+  }, z.date().optional()),
+});
 
 export async function GET() {
   try {
@@ -8,6 +33,14 @@ export async function GET() {
     await dbConnect();
 
     const posts = await Post.find({}).sort({ date: -1 }).lean();
+
+    if (!Array.isArray(posts)) {
+      console.error("Unexpected posts result", posts);
+      return NextResponse.json(
+        { error: "Unexpected data format from database" },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json(posts, { status: 200 });
   } catch (error: any) {
@@ -47,26 +80,32 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
-    const body = await request.json();
-    const { title, content, slug, date } = body;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
 
-    // Validate required fields
-    if (!title || !content || !slug) {
+    const parsed = postInputSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
         {
-          error:
-            "Missing required fields: title, content, and slug are required",
+          error: "Validation failed",
+          details: parsed.error.flatten().fieldErrors,
         },
         { status: 400 },
       );
     }
 
+    const { title, content, slug, date } = parsed.data;
+
     // Create the post
     const post = await Post.create({
       title,
       content,
-      slug,
-      date: date ? new Date(date) : new Date(),
+      slug: slug.toLowerCase(),
+      date: date ?? new Date(),
     });
 
     return NextResponse.json(post, { status: 201 });

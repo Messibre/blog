@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
 export interface Post {
-  _id?: string
-  id?: string
-  title: string
-  date: string
-  content: string
-  slug: string
+  _id?: string;
+  id?: string;
+  title: string;
+  date: string;
+  content: string;
+  slug: string;
 }
 
 interface PostListProps {
-  posts: Post[]
-  onSelectPost: (post: Post) => void
+  posts: Post[];
+  onSelectPost: (post: Post) => void;
 }
 
 function getPreview(content: string, maxLength: number = 150): string {
-  const plainText = content.replace(/[#*`_~\[\]]/g, '').trim()
-  if (plainText.length <= maxLength) return plainText
-  return plainText.substring(0, maxLength).trim() + '...'
+  const plainText = content.replace(/[#*`_~\[\]]/g, "").trim();
+  if (plainText.length <= maxLength) return plainText;
+  return plainText.substring(0, maxLength).trim() + "...";
 }
 
 export function PostList({ posts, onSelectPost }: PostListProps) {
   return (
     <div className="space-y-12">
       {posts.map((post) => (
-        <article key={post._id || post.id} className="group">
+        <article key={post._id || post.id || post.slug} className="group">
           <button
             onClick={() => onSelectPost(post)}
             className="text-left w-full"
@@ -42,5 +42,5 @@ export function PostList({ posts, onSelectPost }: PostListProps) {
         </article>
       ))}
     </div>
-  )
+  );
 }
