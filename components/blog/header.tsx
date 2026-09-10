@@ -20,11 +20,11 @@ export function BlogHeader() {
           href="/"
           className="inline-flex items-center gap-2 font-[family-name:var(--font-playfair)] text-xl md:text-2xl text-foreground tracking-tight hover:text-accent transition-colors"
         >
-          {/* custom logo in public folder; falls back to pen icon if SVG fails to load */}
+          {/* custom logo in public folder; falls back to pen icon if image fails to load */}
           <img
-            src="/logo.svg"
+            src="/logo.png"
             alt="Logo"
-            className="w-5 h-5 text-accent"
+            className="w-8 h-8 rounded-full object-cover ring-1 ring-accent/30"
             onError={(e) => {
               // when image fails, replace with pen icon
               const img = e.currentTarget;
