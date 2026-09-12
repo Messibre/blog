@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export interface Post {
   _id?: string;
   id?: string;
@@ -11,7 +13,6 @@ export interface Post {
 
 interface PostListProps {
   posts: Post[];
-  onSelectPost: (post: Post) => void;
 }
 
 function getPreview(content: string, maxLength: number = 150): string {
@@ -20,15 +21,12 @@ function getPreview(content: string, maxLength: number = 150): string {
   return plainText.substring(0, maxLength).trim() + "...";
 }
 
-export function PostList({ posts, onSelectPost }: PostListProps) {
+export function PostList({ posts }: PostListProps) {
   return (
     <div className="space-y-12">
       {posts.map((post) => (
         <article key={post._id || post.id || post.slug} className="group">
-          <button
-            onClick={() => onSelectPost(post)}
-            className="text-left w-full"
-          >
+          <Link href={`/posts/${post.slug}`} className="block text-left w-full">
             <time className="text-sm text-muted-foreground font-mono tracking-wide uppercase">
               {post.date}
             </time>
@@ -38,7 +36,7 @@ export function PostList({ posts, onSelectPost }: PostListProps) {
             <p className="mt-3 text-muted-foreground leading-relaxed line-clamp-2">
               {getPreview(post.content)}
             </p>
-          </button>
+          </Link>
         </article>
       ))}
     </div>
