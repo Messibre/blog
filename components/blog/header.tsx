@@ -3,14 +3,23 @@
 import { Search, Sun, Moon, PenLine } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 
 export function BlogHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
+  };
+
+  const submitSearch = () => {
+    const trimmed = query.trim();
+    router.push(trimmed ? `/?q=${encodeURIComponent(trimmed)}` : "/");
+    setSearchOpen(false);
   };
 
   return (
@@ -41,10 +50,25 @@ export function BlogHeader() {
             <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-200">
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search posts..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 className="bg-transparent border-b border-muted-foreground/30 px-2 py-1 text-sm focus:outline-none focus:border-accent w-32 md:w-48"
                 autoFocus
-                onBlur={() => setSearchOpen(false)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setSearchOpen(false);
+                    return;
+                  }
+                  if (e.key !== "Enter") return;
+                  // don't submit while an IME is composing (CJK input)
+                  if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                  e.preventDefault();
+                  submitSearch();
+                }}
+                onBlur={() => {
+                  if (!query.trim()) setSearchOpen(false);
+                }}
               />
             </div>
           ) : (
