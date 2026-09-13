@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowLeft, Clock } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -15,7 +16,7 @@ interface Post {
 
 interface PostViewProps {
   post: Post;
-  onBack: () => void;
+  backHref?: string;
 }
 
 function calculateReadingTime(content: string): string {
@@ -27,24 +28,19 @@ function calculateReadingTime(content: string): string {
   return `${minutes} min`;
 }
 
-export function PostView({ post, onBack }: PostViewProps) {
+export function PostView({ post, backHref = "/" }: PostViewProps) {
   const readingTime = post.readingTime || calculateReadingTime(post.content);
 
   return (
     <article className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* top-of-article back control for immediate visibility */}
-      <button
-        onClick={() => {
-          if (typeof window !== "undefined") {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }
-          onBack();
-        }}
+      <Link
+        href={backHref}
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 group"
       >
         <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
         <span className="text-sm">Back to all posts</span>
-      </button>
+      </Link>
 
       <header className="mb-12">
         <time className="text-sm text-muted-foreground font-mono tracking-wide uppercase">

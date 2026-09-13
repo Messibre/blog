@@ -40,10 +40,10 @@ export async function GET() {
         (post) => `
     <item>
       <title>${escapeXml(post.title)}</title>
-      <link>${siteUrl}/post/${post.slug}</link>
+      <link>${siteUrl}/posts/${post.slug}</link>
       <description>${escapeXml(getExcerpt(post.content))}</description>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
-      <guid>${siteUrl}/post/${post.slug}</guid>
+      <guid>${siteUrl}/posts/${post.slug}</guid>
     </item>`,
       )
       .join("")}
